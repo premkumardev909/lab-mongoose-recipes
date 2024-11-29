@@ -12,12 +12,47 @@ mongoose
   .connect(MONGODB_URI)
   .then(x => {
     console.log(`Connected to the database: "${x.connection.name}"`);
-    // Before adding any recipes to the database, let's remove all existing ones
-    return Recipe.deleteMany()
+    return Recipe.deleteMany();
   })
   .then(() => {
-    // Run your code here, after you have insured that the connection was made
+    const newRecipe = {
+      title: "Asian Glazed Chicken Thighs",
+      level: "Amateur Chef",
+      ingredients: [
+        // ingredients here
+      ],
+      cuisine: "Asian",
+      dishType: "main_course",
+      image: "https://images.media-allrecipes.com/userphotos/720x405/815964.jpg",
+      duration: 40,
+      creator: "Chef LePapu"
+    };
+
+    return Recipe.create(newRecipe);
+  })
+  .then(result => {
+    console.log(`Object inserted - ${result.title}`);
+    return Recipe.insertMany(data);
+  })
+  .then(results => {
+    results.forEach(recipe => {
+      console.log(`Inserted - ${recipe.title}`);
+    });
+    return Recipe.findOneAndUpdate(
+      { title: 'Rigatoni alla Genovese' }, 
+      { duration: 100 }, 
+      { new: true }
+    );
+  })
+  .then(updatedRecipe => {
+    console.log(`Updated ${updatedRecipe.title} successfully!`);
+    return Recipe.deleteOne({ title: 'Carrot Cake' });
+  })
+  .then(() => {
+    console.log('Carrot Cake removed successfully!');
+    mongoose.connection.close();
   })
   .catch(error => {
-    console.error('Error connecting to the database', error);
-  });
+    console.error('Error:', error);
+    mongoose.connection.close();
+});
